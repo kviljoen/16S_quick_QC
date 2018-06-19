@@ -11,7 +11,7 @@ read_pair.into { read_pair_p1; read_pair_p2 }
 
 process runFastQC{
     tag { "${params.projectName}.rFQC.${sample}" }
-    publishDir "${out_dir}/qc/raw/${sample}", mode: 'copy', overwrite: false
+    publishDir "${out_dir}/${sample}", mode: 'copy', overwrite: false
 
     input:
         set sample, file(in_fastq) from read_pair_p1
@@ -29,7 +29,7 @@ process runFastQC{
 
 process runMultiQC{
     tag { "${params.projectName}.rMQC" }
-    publishDir "${out_dir}/qc/raw", mode: 'copy', overwrite: false
+    publishDir "${out_dir}/", mode: 'copy', overwrite: false
 
     input:
         file('*') from fastqc_files.collect()
