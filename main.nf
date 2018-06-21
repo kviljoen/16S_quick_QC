@@ -5,7 +5,8 @@ out_dir = file(params.outDir)
 
 out_dir.mkdir()
 
-read_pair = Channel.fromFilePairs("${raw_reads}/*stripped_again_R[1,2].fastq", type: 'file')
+//read_pair = Channel.fromFilePairs("${raw_reads}/*stripped_again_R[1,2].fastq", type: 'file')
+read_pair = Channel.fromFilePairs("${raw_reads}/*R[1,2].filtered.fastq.gz", type: 'file')
 
 read_pair.into { read_pair_p1; read_pair_p2 }
 
