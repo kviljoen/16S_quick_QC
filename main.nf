@@ -5,10 +5,11 @@ out_dir = file(params.outDir)
 
 out_dir.mkdir()
 
-//read_pair = Channel.fromFilePairs("${raw_reads}/*stripped_again_R[1,2].fastq", type: 'file')
-read_pair = Channel.fromFilePairs("${raw_reads}/*R[1,2].filtered.fastq.gz", type: 'file')
+Channel
+    .fromFilePairs( params.raw_reads )
+    .ifEmpty { error "Cannot find any reads matching: ${params.raw_reads}" }
+    .into {read_pair_p1; read_pair_p2}
 
-read_pair.into { read_pair_p1; read_pair_p2 }
 
 process runFastQC{
     tag { "${params.projectName}.rFQC.${sample}" }
