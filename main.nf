@@ -1,13 +1,12 @@
 #!/usr/bin/env nextflow
 
-raw_reads = params.rawReads
 out_dir = file(params.outDir)
 
 out_dir.mkdir()
 
 Channel
-    .fromFilePairs( params.raw_reads )
-    .ifEmpty { error "Cannot find any reads matching: ${params.raw_reads}" }
+    .fromFilePairs( params.rawReads )
+    .ifEmpty { error "Cannot find any reads matching: ${params.rawReads}" }
     .into {read_pair_p1; read_pair_p2}
 
 
