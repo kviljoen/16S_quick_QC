@@ -54,13 +54,15 @@ process runMultiQC{
     """
 }
 
-Quality Control - STEP 1. De-duplication. Only exact duplicates are removed.
-	If the layout is "paired", two FASTQ files are outputted, one for each paired-end.
-	If "single", a single FASTQ file will be generated.
-	This step is OPTIONAL. De-duplication should be carried on iff you are
-    using PCR amplification (in this case identical reads are technical artefacts)
-	but not otherwise (identical reads will identify natural duplicates).
-    
+/* 
+ *	Quality Control - STEP 1. De-duplication. Only exact duplicates are removed.
+ *	Two FASTQ files are outputted, one for each paired-end.
+ *	If "single", a single FASTQ file will be generated.
+ *	This step is OPTIONAL. De-duplication should be carried on iff you are
+ *    	using PCR amplification (in this case identical reads are technical artefacts)
+ *	but not otherwise (identical reads will identify natural duplicates).
+ */  
+ 
     process dedup {
 	tag { "dedup.${pairId}" }
 
@@ -181,7 +183,6 @@ process decontaminate {
 	
 	output:
 	file "*_clean.fq.gz"
-	set val(pairId), file("${pairId}_clean.fq") into cleanreadstometaphlan2, cleanreadstohumann2 
 	set val(pairId), file("${pairId}_cont.fq") into topublishdecontaminate
 	
 	script:
