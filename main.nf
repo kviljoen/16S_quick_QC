@@ -185,6 +185,9 @@ process decontaminate {
 	file "*_clean.fq.gz"
 	set val(pairId), file("${pairId}_cont.fq") into topublishdecontaminate
 	
+	when:
+	decon=="yes"
+	
 	script:
 	"""
 	maxmem=\$(echo ${task.memory} | sed 's/ //g' | sed 's/B//g')
