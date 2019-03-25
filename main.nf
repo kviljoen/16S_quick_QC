@@ -1,5 +1,12 @@
 #!/usr/bin/env nextflow
 
+// Has the run name been specified by the user?
+//  this has the bonus effect of catching both -name and --name
+custom_runName = params.name
+if( !(workflow.runName ==~ /[a-z]+_[a-z]+/) ){
+  custom_runName = workflow.runName
+}
+
 // Header log info
 log.info "==================================="
 log.info "           16S_quick_QC            "
@@ -20,6 +27,7 @@ summary['Max Memory']     = params.max_memory
 summary['Max CPUs']       = params.max_cpus
 summary['Max Time']       = params.max_time
 summary['Output dir']     = params.outdir
+summary['Adapter ref']    = params.adapterse
 summary['Working dir']    = workflow.workDir
 summary['Container']      = workflow.container
 if(workflow.revision) summary['Pipeline Release'] = workflow.revision
