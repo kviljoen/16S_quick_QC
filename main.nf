@@ -18,7 +18,7 @@ out_dir.mkdir()
 Channel
     .fromFilePairs( params.rawReads )
     .ifEmpty { error "Cannot find any reads matching: ${params.rawReads}" }
-    .set {ReadPairsToQual; ReadPairs}
+    .into {ReadPairsToQual; ReadPairs}
 
 
 process runFastQC{
