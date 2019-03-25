@@ -32,7 +32,7 @@ process runFastQC{
         file("${pairId}_fastqc/*.zip") into fastqc_files
 
     """
-    mkdir ${sample}_fastqc
+    mkdir ${pairId}_fastqc
     fastqc --outdir ${pairId}_fastqc \
     ${in_fastq.get(0)} \
     ${in_fastq.get(1)}
