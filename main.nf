@@ -108,10 +108,6 @@ process runMultiQC{
  
     process dedup {
 	tag { "dedup.${pairId}" }
-	
-	//Creates main log file (per sample)
-	
-	mylog = file(params.out_dir + "/" + "${pairId}"  + ".log")
 
 	input:
 	set val(pairId), file(reads) from ReadPairs
@@ -119,7 +115,8 @@ process runMultiQC{
 	output:
 	file  ".log.2" into log2
 	set val(pairId), file("${pairId}_dedupe_R1.fq"), file("${pairId}_dedupe_R2.fq") into totrim, topublishdedupe
-    
+    	set val(pairId) into logQC_Ids
+	
     	when:
 	params.dedup=="yes"
     
@@ -299,12 +296,21 @@ process decontaminate {
 
 
 process logQC {
-
+	tag{ "logQC.${pairId}" }
+	publishDir  "${params.outdir}/logQC"
+	
 	input:
+	set val(pairId) from logQC_Ids
 	//file(tolog)  from logQC.flatMap().mix(log2, log3, log5).toSortedList( { a, b -> a.name <=> b.name } )
 	file(tolog) from log2
+	
+	output:
+	file "*.log"
+	
 	script:
 	"""
+	#Create main log file (per sample)
+	mylog = "${pairId}" + "logQC"  + ".log")
 	cat $tolog >> $mylog
 	"""
 }
