@@ -108,22 +108,63 @@ process runMultiQC{
  
     process dedup {
 	tag { "dedup.${pairId}" }
+	
+	//Creates main log file (per sample)
+	
+	mylog = file(params.out_dir + "/" + "${pairId}"  + ".log")
 
 	input:
 	set val(pairId), file(reads) from ReadPairs
 
 	output:
+	file  ".log.2" into log2
 	set val(pairId), file("${pairId}_dedupe_R1.fq"), file("${pairId}_dedupe_R2.fq") into totrim, topublishdedupe
     
-    when:
+    	when:
 	params.dedup=="yes"
     
 	script:
 	"""
-	maxmem=\$(echo ${task.memory} | sed 's/ //g' | sed 's/B//g')
-	clumpify.sh -Xmx\"\$maxmem\" in1="${reads[0]}" in2="${reads[1]}" out1=${pairId}_dedupe_R1.fq out2=${pairId}_dedupe_R2.fq \
-	qin=$params.qin dedupe subs=0 threads=${task.cpus}
+	#Measures execution time
+	sysdate=\$(date)
+	starttime=\$(date +%s.%N)
+	echo \"Performing Quality Control. STEP 1 [De-duplication] at \$sysdate\" > .log.2
+	echo \" \" >> .log.2
 	
+	#####################################
+	#ACTUAL COMMAND
+	maxmem=\$(echo ${task.memory} | sed 's/ //g' | sed 's/B//g')
+	CMD=\"clumpify.sh -Xmx\"\$maxmem\" in1="${reads[0]}" in2="${reads[1]}" out1=${pairId}_dedupe_R1.fq out2=${pairId}_dedupe_R2.fq \
+	qin=$params.qin dedupe subs=0 threads=${task.cpus}\"
+	#De-duplicates
+	exec \$CMD 2>&1 | tee tmp.log
+	#####################################
+	
+	#Logs version of the software and executed command (BBmap prints on stderr)
+	version=\$(clumpify.sh --version 2>&1 >/dev/null | grep \"BBMap version\") 
+	echo \"Using clumpify.sh in \$version \" >> .log.2
+	echo \"Executing command: \$CMD \" >> .log.2
+	echo \" \" >> .log.2
+	
+	#Logs some figures about sequences passing de-duplication
+	echo  \"Clumpify's de-duplication stats: \" >> .log.2
+	echo \" \" >> .log.2
+	sed -n '/Reads In:/,/Duplicates Found:/p' tmp.log >> .log.2
+	echo \" \" >> .log.2
+	totR=\$(grep \"Reads In:\" tmp.log | cut -f 1 | cut -d: -f 2 | sed 's/ //g')
+	remR=\$(grep \"Duplicates Found:\" tmp.log | cut -f 1 | cut -d: -f 2 | sed 's/ //g')
+	survivedR=\$((\$totR-\$remR))
+	percentage=\$(echo \$survivedR \$totR | awk '{print \$1/\$2*100}' )
+	echo \"\$survivedR out of \$totR paired reads survived de-duplication (\$percentage%, \$remR reads removed)\" >> .log.2
+	echo \" \" >> .log.2
+	#Measures and logs execution time
+	endtime=\$(date +%s.%N)
+	exectime=\$(echo \"\$endtime \$starttime\" | awk '{print \$1-\$2}')
+	sysdate=\$(date)
+	echo \"STEP 1 (Quality control) terminated at \$sysdate (\$exectime seconds)\" >> .log.2
+	echo \" \" >> .log.2
+	echo \"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\" >> .log.2
+	echo \" \" >> .log.2
 	"""
 }
 
@@ -250,3 +291,20 @@ process decontaminate {
 	"""
 }
 
+/**
+	CLEANUP 1. Collapses all the logs resulting from the QC in the main one, 
+	and removes them.
+*/
+
+
+
+process logQC {
+
+	input:
+	//file(tolog)  from logQC.flatMap().mix(log2, log3, log5).toSortedList( { a, b -> a.name <=> b.name } )
+	file(tolog) from log2
+	script:
+	"""
+	cat $tolog >> $mylog
+	"""
+}
