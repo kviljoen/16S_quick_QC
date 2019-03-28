@@ -229,21 +229,6 @@ process decontaminate {
  *
  */
 
-process runMultiQC{
-    tag { "rMQC_post_FT" }
-    publishDir "${params.outdir}/FastQC_post_filter_trim", mode: 'copy', overwrite: false
-
-    input:
-        file('*') from fastqc_files_2.collect()
-
-    output:
-        file('multiqc_report.html')
-
-    """
-    multiqc .
-    """
-}
-
 
 process multiqc {
     tag { "multiqc" }
