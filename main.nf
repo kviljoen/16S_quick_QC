@@ -250,3 +250,4 @@ process multiqc {
     multiqc . -f $rtitle $rfilename
         -m fastqc -m bbmap
     """
+}
