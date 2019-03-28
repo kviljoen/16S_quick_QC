@@ -9,7 +9,7 @@ if( !(workflow.runName ==~ /[a-z]+_[a-z]+/) ){
 
 // Header log info
 log.info "==================================="
-log.info "           16S_quick_QC            "
+log.info "           FASTQC_BBDUK            "
 log.info "==================================="
 def summary = [:]
 summary['Run Name']     = custom_runName ?: workflow.runName
@@ -82,20 +82,6 @@ process runFastQC{
     """
 }
 
-process runMultiQC{
-    tag { "${params.projectName}.rMQC" }
-    publishDir "${out_dir}/", mode: 'copy', overwrite: false
-
-    input:
-        file('*') from fastqc_files.collect()
-
-    output:
-        file('multiqc_report.html')
-
-    """
-    multiqc .
-    """
-}
 
 /* 
  *	Quality Control - STEP 1. De-duplication. Only exact duplicates are removed.
@@ -150,7 +136,8 @@ process bbduk {
 	output:
 	set val(pairId), file("${pairId}_trimmed_R1.fq"), file("${pairId}_trimmed_R2.fq"), file("${pairId}_trimmed_singletons.fq") into todecontaminate
 	set val(pairId), file("${pairId}_trimmed_R1.fq"), file("${pairId}_trimmed_R2.fq") into filteredReadsforQC
-
+	file(*stats*) into multiqc_bbduk_stats
+	
 	script:
 	"""	
 	maxmem=\$(echo ${task.memory} | sed 's/ //g' | sed 's/B//g')
@@ -197,20 +184,6 @@ process runFastQC_postfilterandtrim {
     """
 }
 
-process runMultiQC_postfilterandtrim {
-    tag { "rMQC_post_FT" }
-    publishDir "${params.outdir}/FastQC_post_filter_trim", mode: 'copy', overwrite: false
-
-    input:
-        file('*') from fastqc_files_2.collect()
-
-    output:
-        file('multiqc_report.html')
-
-    """
-    multiqc .
-    """
-}
 
 /*
  *
@@ -250,3 +223,45 @@ process decontaminate {
 	"""
 }
 
+/*
+ *
+ * Step : MultiQC report
+ *
+ */
+
+process runMultiQC{
+    tag { "rMQC_post_FT" }
+    publishDir "${params.outdir}/FastQC_post_filter_trim", mode: 'copy', overwrite: false
+
+    input:
+        file('*') from fastqc_files_2.collect()
+
+    output:
+        file('multiqc_report.html')
+
+    """
+    multiqc .
+    """
+}
+
+
+process multiqc {
+    tag { "multiqc" }
+    publishDir "${params.outdir}/multiqc", mode: 'copy'
+
+    input:
+    file('*') from fastqc_files.collect().ifEmpty([])
+    file('*') from fastqc_files_2.collect().ifEmpty([])
+    file('*') from multiqc_bbduk_stats.collect().ifEmpty([])
+
+    output:
+    file "*multiqc_report.html" into multiqc_report
+    file "*_data"
+
+    script:
+    rtitle = custom_runName ? "--title \"$custom_runName\"" : ''
+    rfilename = custom_runName ? "--filename " + custom_runName.replaceAll('\\W','_').replaceAll('_+','_') + "_multiqc_report" : ''
+    """
+    multiqc . -f $rtitle $rfilename
+        -m fastqc -m bbmap
+    """
