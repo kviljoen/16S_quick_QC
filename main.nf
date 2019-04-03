@@ -54,7 +54,7 @@ if (params.decon == false) {
 	exit 1, "Should Decontamination be performed? Must specify (--decon) <yes, no>" 
 }  
 
-out_dir = file(params.outDir)
+out_dir = file(params.outdir)
 
 out_dir.mkdir()
 
