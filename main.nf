@@ -13,7 +13,7 @@ log.info "           FASTQC_BBDUK            "
 log.info "==================================="
 def summary = [:]
 summary['Run Name']     = custom_runName ?: workflow.runName
-summary['Reads']        = params.reads
+summary['Reads']        = params.rawReads
 summary['OS']		= System.getProperty("os.name")
 summary['OS.arch']	= System.getProperty("os.arch") 
 summary['OS.version']	= System.getProperty("os.version")
