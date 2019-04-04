@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
 
-out_dir = file(params.outDir)
+out_dir = file(params.outdir)
 
 out_dir.mkdir()
 
