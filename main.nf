@@ -244,8 +244,6 @@ process multiqc {
     file "*_data"
 
     script:
-    rtitle = custom_runName ? "--title \"$custom_runName\"" : ''
-    rfilename = custom_runName ? "--filename " + custom_runName.replaceAll('\\W','_').replaceAll('_+','_') + "_multiqc_report" : ''
     """
     multiqc -m fastqc -m bbmap .
     """
