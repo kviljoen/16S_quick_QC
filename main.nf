@@ -30,7 +30,7 @@ process runFastQC{
 
 process runMultiQC{
     tag { "${params.projectName}.rMQC" }
-    publishDir "${out_dir}/", mode: 'copy', overwrite: false
+    publishDir "${out_dir}/", mode: 'copy', overwrite: true
 
     input:
         file('*') from fastqc_files.collect()
