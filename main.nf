@@ -39,6 +39,6 @@ process runMultiQC{
         file('multiqc_report.html')
 
     """
-    multiqc -m fastqc -m bbmap .
+    multiqc .
     """
 }
