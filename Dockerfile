@@ -4,6 +4,8 @@ ENV CONDA_INSTALLER="Miniconda3-latest-Linux-x86_64.sh"
 #Exports conda path
 ENV PATH $PATH:/opt/conda/bin/
 
+RUN printf "deb http://archive.debian.org/debian/ jessie main\ndeb-src http://archive.debian.org/debian/ jessie main\ndeb http://security.debian.org jessie/updates main\ndeb-src http://security.debian.org jessie/updates main" > /etc/apt/sources.list
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     bzip2 \
     libglib2.0-0 \
