@@ -237,7 +237,7 @@ process multiqc {
     input:
     file('*') from fastqc_files.collect().ifEmpty([])
     file('*') from fastqc_files_2.collect().ifEmpty([])
-    file('*') from multiqc_bbduk_stats.collect().ifEmpty([])
+    file('.command.log?') from multiqc_bbduk_stats.collect().ifEmpty([])
 
     output:
     file "*multiqc_report.html" into multiqc_report
