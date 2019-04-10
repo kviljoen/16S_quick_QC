@@ -121,7 +121,7 @@ process runFastQC{
 
 process bbduk {
 	tag{ "bbduk.${pairId}" }
-	publishDir "${params.outdir}/BBDUK", mode: "copy", pattern: "*_command.log" overwrite: false
+	publishDir "${params.outdir}/BBDUK", mode: "copy", pattern: "*_command.log", overwrite: false
 
 	//bbduk reference files
 	adapters_ref = file(params.adapters)
