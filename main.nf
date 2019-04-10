@@ -121,7 +121,7 @@ process runFastQC{
 
 process bbduk {
 	tag{ "bbduk.${pairId}" }
-	publishDir "${params.outdir}/BBDUK", mode: "copy", pattern: "*_command.log", overwrite: false
+	publishDir "${params.outdir}/BBDUK", mode: "copy", overwrite: false
 
 	//bbduk reference files
 	adapters_ref = file(params.adapters)
@@ -157,7 +157,6 @@ process bbduk {
 	k=31 ref=$phix174ill,$artifacts qin=$params.qin threads=${task.cpus}
 	#Removes tmp files. This avoids adding them to the output channels
 	rm -rf ${pairId}_trimmed*_tmp.fq 
-	cp .command.log ${pairId}_command.log
 	"""
 }
 
@@ -239,7 +238,7 @@ process multiqc {
     input:
     file('*') from fastqc_files.collect().ifEmpty([])
     file('*') from fastqc_files_2.collect().ifEmpty([])
-    file('*_command.log') from multiqc_bbduk_stats.collect().ifEmpty([])
+    file('*command.log') from multiqc_bbduk_stats.collect().ifEmpty([])
 
     output:
     file "*multiqc_report.html" into multiqc_report
