@@ -136,7 +136,7 @@ process bbduk {
 	output:
 	set val(pairId), file("${pairId}_trimmed_R1.fq"), file("${pairId}_trimmed_R2.fq"), file("${pairId}_trimmed_singletons.fq") into todecontaminate
 	set val(pairId), file("${pairId}_trimmed_R1.fq"), file("${pairId}_trimmed_R2.fq") into filteredReadsforQC
-	file("*") into multiqc_bbduk_stats
+	file(".command.log") into multiqc_bbduk_stats
 	
 	script:
 	"""	
