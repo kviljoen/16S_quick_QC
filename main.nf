@@ -137,7 +137,7 @@ process bbduk {
 	output:
 	set val(pairId), file("${pairId}_trimmed_R1.fq"), file("${pairId}_trimmed_R2.fq"), file("${pairId}_trimmed_singletons.fq") into todecontaminate
 	set val(pairId), file("${pairId}_trimmed_R1.fq"), file("${pairId}_trimmed_R2.fq") into filteredReadsforQC
-	file(".command.log") into multiqc_bbduk_stats
+	file "${pair_Id}.stats.txt" into multiqc_bbduk_stats
 	
 	script:
 	"""	
@@ -238,7 +238,7 @@ process multiqc {
     input:
     file('*') from fastqc_files.collect().ifEmpty([])
     file('*') from fastqc_files_2.collect().ifEmpty([])
-    file('.command?.log') from multiqc_bbduk_stats
+    file('*') from multiqc_bbduk_stats.collect()
 
     output:
     file "*multiqc_report.html" into multiqc_report
