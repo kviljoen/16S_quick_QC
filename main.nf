@@ -137,14 +137,15 @@ process bbduk {
 	output:
 	set val(pairId), file("${pairId}_trimmed_R1.fq"), file("${pairId}_trimmed_R2.fq"), file("${pairId}_trimmed_singletons.fq") into todecontaminate
 	set val(pairId), file("${pairId}_trimmed_R1.fq"), file("${pairId}_trimmed_R2.fq") into filteredReadsforQC
-	file("${pairId}.stats.txt") into multiqc_bbduk_stats
+	file("${pairId}.stats.txt"), file("${pairId}.refstats.txt") into multiqc_bbduk_stats
 	
 	script:
 	"""	
 	maxmem=\$(echo ${task.memory} | sed 's/ //g' | sed 's/B//g')
 	#Quality and adapter trim:
 	bbduk.sh -Xmx\"\$maxmem\" in=${pairId}_dedupe_R1.fq in2=${pairId}_dedupe_R2.fq out=${pairId}_trimmed_R1_tmp.fq \
-	out2=${pairId}_trimmed_R2_tmp.fq outs=${pairId}_trimmed_singletons_tmp.fq stats=${pairId}.stats.txt \
+	out2=${pairId}_trimmed_R2_tmp.fq outs=${pairId}_trimmed_singletons_tmp.fq \
+	stats=${pairId}.stats.txt statscolumns=5 refstats=${pairId}.refstats.txt\
 	ktrim=r k=$params.kcontaminants mink=$params.mink hdist=$params.hdist qtrim=rl trimq=$params.phred \
 	minlength=$params.minlength ref=$adapters qin=$params.qin threads=${task.cpus} tbo tpe 
 	
