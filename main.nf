@@ -121,7 +121,7 @@ process runFastQC{
 
 process bbduk {
 	tag{ "bbduk.${pairId}" }
-	publishDir "${params.outdir}/BBDUK", mode: "copy", overwrite: false
+	publishDir "${params.outdir}/BBDUK", mode: "copy"
 
 	//bbduk reference files
 	adapters_ref = file(params.adapters)
@@ -137,7 +137,7 @@ process bbduk {
 	output:
 	set val(pairId), file("${pairId}_trimmed_R1.fq"), file("${pairId}_trimmed_R2.fq"), file("${pairId}_trimmed_singletons.fq") into todecontaminate
 	set val(pairId), file("${pairId}_trimmed_R1.fq"), file("${pairId}_trimmed_R2.fq") into filteredReadsforQC
-	file "${pair_Id}.stats.txt" into multiqc_bbduk_stats
+	file("${pairId}.stats.txt") into multiqc_bbduk_stats
 	
 	script:
 	"""	
