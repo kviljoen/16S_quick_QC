@@ -107,7 +107,7 @@ process runFastQC{
 	script:
 	"""
 	maxmem=\$(echo ${task.memory} | sed 's/ //g' | sed 's/B//g')
-	clumpify.sh -Xmx\"\$maxmem\" -Xms2G in1="${reads[0]}" in2="${reads[1]}" out1=${pairId}_dedupe_R1.fq out2=${pairId}_dedupe_R2.fq \
+	clumpify.sh -Xmx40G -Xms2G in1="${reads[0]}" in2="${reads[1]}" out1=${pairId}_dedupe_R1.fq out2=${pairId}_dedupe_R2.fq \
 	qin=$params.qin dedupe subs=0 threads=${task.cpus}
 	
 	"""
