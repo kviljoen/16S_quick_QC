@@ -107,7 +107,7 @@ process runFastQC{
 	script:
 	"""
 	maxmem=\$(echo ${task.memory} | sed 's/.GB//g')
-	maxmem_java=\$(($maxmem - 2))
+	maxmem_java=\$((\$maxmem - 2))
 	
 	
 	clumpify.sh -Xmx4\"\${maxmem_java}G\"-Xms2G in1="${reads[0]}" in2="${reads[1]}" out1=${pairId}_dedupe_R1.fq out2=${pairId}_dedupe_R2.fq \
