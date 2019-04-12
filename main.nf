@@ -120,7 +120,7 @@ process runFastQC{
 
 //When the deduplication is not done, the raw files should be pushed to the corret channel
 if (params.dedup=="no") {
-	totrim = set pairId, file(reads) from ReadPairs
+	totrim = Channel.value(set pairId, file(reads) from ReadPairs)
 }
 
 /*
