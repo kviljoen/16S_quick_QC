@@ -117,6 +117,12 @@ process runFastQC{
 	"""
 }
 
+
+//When the deduplication is not done, the raw files should be pushed to the corret channel
+if (params.dedup=="no") {
+	totrim = set val(pairId), file(reads) from ReadPairs
+}
+
 /*
  *
  * Step 3: BBDUK: trim + filter (run per sample)
