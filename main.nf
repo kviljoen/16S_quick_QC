@@ -118,11 +118,6 @@ process runFastQC{
 }
 
 
-//When the deduplication is not done, the raw files should be pushed to the corret channel
-if (params.dedup=="no") {
-	totrim = Channel.value(set pairId, file(reads) from ReadPairs)
-}
-
 /*
  *
  * Step 3: BBDUK: trim + filter (run per sample)
@@ -138,12 +133,21 @@ process bbduk {
 	artifacts_ref = file(params.artifacts)
 	phix174ill_ref = file(params.phix174ill)
 	
+	if(params.dedup=="yes"){
 	input:
-	set val(pairId), file(R1), file(R2) from totrim
+	set val(pairId), file(in1), file(in2) from totrim
 	file adapters from adapters_ref
 	file artifacts from artifacts_ref
 	file phix174ill from phix174ill_ref
-
+	}
+	else{
+	input:
+	set val(pairId), file(in1), file(in2) from readPairs
+	file adapters from adapters_ref
+	file artifacts from artifacts_ref
+	file phix174ill from phix174ill_ref
+	}
+	
 	output:
 	set val(pairId), file("${pairId}_trimmed_R1.fq"), file("${pairId}_trimmed_R2.fq"), file("${pairId}_trimmed_singletons.fq") into todecontaminate
 	set val(pairId), file("${pairId}_trimmed_R1.fq"), file("${pairId}_trimmed_R2.fq") into filteredReadsforQC
@@ -155,7 +159,7 @@ process bbduk {
 	maxmem_java=\$((\$maxmem - 8))
 	
 	#Quality and adapter trim:
-	bbduk.sh -Xmx\"\${maxmem_java}G\" -Xms2G in=$R1 in2=$R2 out=${pairId}_trimmed_R1_tmp.fq \
+	bbduk.sh -Xmx\"\${maxmem_java}G\" -Xms2G in=$in1 in2=$in2 out=${pairId}_trimmed_R1_tmp.fq \
 	out2=${pairId}_trimmed_R2_tmp.fq outs=${pairId}_trimmed_singletons_tmp.fq \
 	stats=${pairId}.stats.txt \
 	ktrim=r k=$params.kcontaminants mink=$params.mink hdist=$params.hdist qtrim=rl trimq=$params.phred \
