@@ -107,10 +107,9 @@ process runFastQC{
 	script:
 	"""
 	maxmem=\$(echo ${task.memory} | sed 's/.GB//g')
-	maxmem_java=\$((\$maxmem - 4))
+	maxmem_java=\$((\$maxmem - 8))
 	
-	
-	clumpify.sh -Xmx40G -Xms2G in1="${reads[0]}" in2="${reads[1]}" out1=${pairId}_dedupe_R1.fq out2=${pairId}_dedupe_R2.fq \
+	clumpify.sh -Xmx\"\${maxmem_java}G\" -Xms2G in1="${reads[0]}" in2="${reads[1]}" out1=${pairId}_dedupe_R1.fq out2=${pairId}_dedupe_R2.fq \
 	qin=$params.qin dedupe subs=0 threads=${task.cpus}
 	
 	"""
@@ -144,20 +143,22 @@ process bbduk {
 	
 	script:
 	"""	
-	maxmem=\$(echo ${task.memory} | sed 's/ //g' | sed 's/B//g')
+	maxmem=\$(echo ${task.memory} | sed 's/.GB//g')
+	maxmem_java=\$((\$maxmem - 8))
+	
 	#Quality and adapter trim:
-	bbduk.sh -Xmx40G -Xms2G in=${pairId}_dedupe_R1.fq in2=${pairId}_dedupe_R2.fq out=${pairId}_trimmed_R1_tmp.fq \
+	bbduk.sh -Xmx\"\${maxmem_java}G\" -Xms2G in=${pairId}_dedupe_R1.fq in2=${pairId}_dedupe_R2.fq out=${pairId}_trimmed_R1_tmp.fq \
 	out2=${pairId}_trimmed_R2_tmp.fq outs=${pairId}_trimmed_singletons_tmp.fq \
 	stats=${pairId}.stats.txt \
 	ktrim=r k=$params.kcontaminants mink=$params.mink hdist=$params.hdist qtrim=rl trimq=$params.phred \
 	minlength=$params.minlength ref=$adapters qin=$params.qin threads=${task.cpus} tbo tpe 
 	
 	#Synthetic contaminants trim:
-	bbduk.sh -Xmx40G -Xms2G in=${pairId}_trimmed_R1_tmp.fq in2=${pairId}_trimmed_R2_tmp.fq \
+	bbduk.sh -Xmx\"\${maxmem_java}G\" -Xms2G in=${pairId}_trimmed_R1_tmp.fq in2=${pairId}_trimmed_R2_tmp.fq \
 	out=${pairId}_trimmed_R1.fq out2=${pairId}_trimmed_R2.fq k=31 ref=$phix174ill,$artifacts \
 	qin=$params.qin threads=${task.cpus} 
 	#Synthetic contaminants trim for singleton reads:
-	bbduk.sh -Xmx40G -Xms2G in=${pairId}_trimmed_singletons_tmp.fq out=${pairId}_trimmed_singletons.fq \
+	bbduk.sh -Xmx\"\${maxmem_java}G\" -Xms2G in=${pairId}_trimmed_singletons_tmp.fq out=${pairId}_trimmed_singletons.fq \
 	k=31 ref=$phix174ill,$artifacts qin=$params.qin threads=${task.cpus}
 	#Removes tmp files. This avoids adding them to the output channels
 	rm -rf ${pairId}_trimmed*_tmp.fq 
@@ -216,10 +217,11 @@ process decontaminate {
 	
 	script:
 	"""
-	maxmem=\$(echo ${task.memory} | sed 's/ //g' | sed 's/B//g')
+	maxmem=maxmem=\$(echo ${task.memory} | sed 's/.GB//g')
+	maxmem_java=\$((\$maxmem - 2)
 	
 	#Decontaminate from foreign genomes
-	bbwrap.sh  -Xmx8G mapper=bbmap append=t in1=${pairId}_trimmed_R1.fq,${pairId}_trimmed_singletons.fq in2=${pairId}_trimmed_R2.fq,null \
+	bbwrap.sh  -Xmx\"\${maxmem_java}G\" mapper=bbmap append=t in1=${pairId}_trimmed_R1.fq,${pairId}_trimmed_singletons.fq in2=${pairId}_trimmed_R2.fq,null \
 	outu=${pairId}_clean.fq outm=${pairId}_cont.fq minid=$params.mind \
 	maxindel=$params.maxindel bwr=$params.bwr bw=12 minhits=2 qtrim=rl trimq=$params.phred \
 	path=$refForeignGenome qin=$params.qin threads=${task.cpus} untrim quickmatch fast
