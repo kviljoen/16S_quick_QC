@@ -94,6 +94,8 @@ process runFastQC{
  
     process dedup {
 	tag { "dedup.${pairId}" }
+ 	publishDir "${params.outdir}/dedup", mode: "copy"
+
 
 	input:
 	set val(pairId), file(reads) from ReadPairs
