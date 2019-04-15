@@ -118,7 +118,7 @@ process runFastQC{
 }
 if(params.dedup=="no"){
 
-	totrim = ReadPairs2
+	totrim = set val(pairId), file(in1), file(in2) from ReadPairs2
 
 }
 /*
