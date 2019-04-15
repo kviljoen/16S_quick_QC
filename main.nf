@@ -116,6 +116,8 @@ process runFastQC{
 	
 	"""
 }
+
+//Define separate input of raw reads if dedup=="no"
 if(params.dedup=="no"){
 
 	totrim = ReadPairs2
