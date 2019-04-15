@@ -118,7 +118,7 @@ process runFastQC{
 }
 if(params.dedup=="no"){
 
-	totrim = ReadPairs
+	totrim = ReadPairs2
 
 }
 /*
