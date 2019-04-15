@@ -101,7 +101,7 @@ process runFastQC{
 	set val(pairId), file(reads) from ReadPairs
 
 	output:
-	set val(pairId), file("${pairId}_dedupe_R1.fq"), file("${pairId}_dedupe_R2.fq") into totrim, topublishdedupe
+	set val(pairId), file("*dedupe*.fq") into totrim
     
    	when:
 	params.dedup=="yes"
@@ -118,8 +118,7 @@ process runFastQC{
 }
 if(params.dedup=="no"){
 
-	totrim = set val(pairId), file(in1), file(in2) from ReadPairs2
-
+	totrim = ReadPairs2
 }
 /*
  *
@@ -137,7 +136,7 @@ process bbduk {
 	phix174ill_ref = file(params.phix174ill)
 	
 	input:
-	set val(pairId), file(in1), file(in2) from totrim
+	set val(pairId), file(in) from totrim
 	file adapters from adapters_ref
 	file artifacts from artifacts_ref
 	file phix174ill from phix174ill_ref
@@ -153,7 +152,7 @@ process bbduk {
 	maxmem_java=\$((\$maxmem - 8))
 	
 	#Quality and adapter trim:
-	bbduk.sh -Xmx\"\${maxmem_java}G\" -Xms2G in=$in1 in2=$in2 out=${pairId}_trimmed_R1_tmp.fq \
+	bbduk.sh -Xmx\"\${maxmem_java}G\" -Xms2G in="${in[0]}" in2="${in[1]}" out=${pairId}_trimmed_R1_tmp.fq \
 	out2=${pairId}_trimmed_R2_tmp.fq outs=${pairId}_trimmed_singletons_tmp.fq \
 	stats=${pairId}.stats.txt \
 	ktrim=r k=$params.kcontaminants mink=$params.mink hdist=$params.hdist qtrim=rl trimq=$params.phred \
