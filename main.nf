@@ -77,8 +77,8 @@ process runFastQC{
     """
     mkdir ${pairId}_fastqc
     fastqc --outdir ${pairId}_fastqc \
-    ${in_fastq.get(0)} \
-    ${in_fastq.get(1)}
+    "${in_fastq[0]}" \
+    "${in_fastq[1]}"
     """
 }
 
