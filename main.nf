@@ -116,7 +116,7 @@ process runFastQC{
 	
 	"""
 }
-if(params.dedup=="neg"){
+if(params.dedup=="no"){
 
 	totrim = ReadPairs
 
