@@ -136,7 +136,7 @@ process bbduk {
 	phix174ill_ref = file(params.phix174ill)
 	
 	input:
-	set val(pairId), file(in) from totrim
+	set val(pairId), file(bbduk_in) from totrim
 	file adapters from adapters_ref
 	file artifacts from artifacts_ref
 	file phix174ill from phix174ill_ref
@@ -152,7 +152,7 @@ process bbduk {
 	maxmem_java=\$((\$maxmem - 8))
 	
 	#Quality and adapter trim:
-	bbduk.sh -Xmx\"\${maxmem_java}G\" -Xms2G in="${in[0]}" in2="${in[1]}" out=${pairId}_trimmed_R1_tmp.fq \
+	bbduk.sh -Xmx\"\${maxmem_java}G\" -Xms2G in="${bbduk_in[0]}" in2="${bbduk_in[1]}" out=${pairId}_trimmed_R1_tmp.fq \
 	out2=${pairId}_trimmed_R2_tmp.fq outs=${pairId}_trimmed_singletons_tmp.fq \
 	stats=${pairId}.stats.txt \
 	ktrim=r k=$params.kcontaminants mink=$params.mink hdist=$params.hdist qtrim=rl trimq=$params.phred \
